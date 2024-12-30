@@ -1,32 +1,23 @@
+#ifndef ARPIEFLOODER_H
+#define ARPIEFLOODER_H
 #include "floodie.h"
-#include "ListInterfaces.h"
-int main(int argc,char* argv[])
+
+inline int mainFunctionFlooder()
 {
 
     std::string targetIp, interfaceName,floodType;
     int packetCount,threadCount;
-    if(argc != 6)
-    {
-        std::cout<<"You can execute this directly using \""<<argv[0]
-        <<"{Target IP} {Interface Name} {Protocol}\""<<std::endl
-        <<"Anyways.... Have Fun!!(but legally >_<)"<<std::endl;
-        std::cout << "Enter target IP: ";
-        std::cin >> targetIp;
-        std::cout << "Enter interface name(wlan0/eth0/etc): ";
-        std::cin >> interfaceName;
-        std::cout << "Enter type of flood (syn/tcp/udp/http/icmp/arp): ";
-        std::cin >> floodType;
-        std::cout << "Enter number of packets to send: ";
-        std::cin >> packetCount;
-        std::cout << "Enter number of threads to use: ";
-        std::cin >> threadCount;
-    }
-    else{
-        targetIp=argv[1];
-        interfaceName=argv[2];
-        floodType=argv[3];
-        threadCount=std::stoi(argv[4]);
-    }
+    std::cout<<"Have Fun!!(but legally >_<)"<<std::endl;
+    std::cout << "Enter target IP: ";
+    std::cin >> targetIp;
+    std::cout << "Enter interface name(wlan0/eth0/etc): ";
+    std::cin >> interfaceName;
+    std::cout << "Enter type of flood (syn/tcp/udp/http/icmp/arp): ";
+    std::cin >> floodType;
+    std::cout << "Enter number of packets to send: ";
+    std::cin >> packetCount;
+    std::cout << "Enter number of threads to use: ";
+    std::cin >> threadCount;
 
     bool flag = false;
     while(!flag){
@@ -112,3 +103,4 @@ int main(int argc,char* argv[])
     std::cout << "Flood simulation complete." << std::endl;
     return 0;
 }
+#endif

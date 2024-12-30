@@ -1,6 +1,7 @@
+#ifndef PARSEPACKET_H
+#define PARSEPACKET_H
 #include <iostream>
 #include <memory>
-#include "cstdlib"
 #include "SystemUtils.h"
 #include "Packet.h"
 #include "EthLayer.h"
@@ -9,7 +10,7 @@
 #include "HttpLayer.h"
 #include "PcapFileDevice.h"
 
-std::string getProtocolTypeAsString(pcpp::ProtocolType protocolType)
+inline std::string getProtocolTypeAsString(const pcpp::ProtocolType protocolType)
 {
     switch (protocolType)
     {
@@ -26,7 +27,7 @@ std::string getProtocolTypeAsString(pcpp::ProtocolType protocolType)
             return "Unknown";
     }
 }
-std::string printTCPFlags(pcpp::TcpLayer* tcpLayer)
+inline std::string printTCPFlags(const pcpp::TcpLayer* tcpLayer)
 {
     std::string result;
 
@@ -41,7 +42,7 @@ std::string printTCPFlags(pcpp::TcpLayer* tcpLayer)
     if (tcpHeader->finFlag) result += "FIN ";
     return result;
 }
-std::string printTcpOptionType(pcpp::TcpOptionType optionType)
+inline std::string printTcpOptionType(pcpp::TcpOptionType optionType)
 {
     switch(optionType)
     {
@@ -53,7 +54,7 @@ std::string printTcpOptionType(pcpp::TcpOptionType optionType)
             return "Other";
     }
 }
-std::string printHttpMethod(pcpp::HttpRequestLayer::HttpMethod httpMethod )
+inline std::string printHttpMethod(pcpp::HttpRequestLayer::HttpMethod httpMethod )
 {
     switch (httpMethod)
     {
@@ -65,7 +66,7 @@ std::string printHttpMethod(pcpp::HttpRequestLayer::HttpMethod httpMethod )
             return "Other";
     }
 }
-void GetLayerDetails(const pcpp::Packet& parsedPacket)
+inline void GetLayerDetails(const pcpp::Packet& parsedPacket)
 {
     for(auto* currLayer = parsedPacket.getFirstLayer();currLayer != nullptr ; currLayer=currLayer->getNextLayer())
     {
@@ -76,7 +77,7 @@ void GetLayerDetails(const pcpp::Packet& parsedPacket)
                 << "Layer payload: " << currLayer->getLayerPayloadSize() << " [bytes]"<<std::endl;
     }
 }
-void ParseEthLayer(const pcpp::Packet& parsedPacket)
+inline void ParseEthLayer(const pcpp::Packet& parsedPacket)
 {
     auto* ethernetLayer = parsedPacket.getLayerOfType<pcpp::EthLayer>();
 
@@ -93,11 +94,11 @@ void ParseEthLayer(const pcpp::Packet& parsedPacket)
               << pcpp::netToHost16(ethernetLayer->getEthHeader()->etherType)
               <<std::endl;
 }
-void ParseIPv4Layer(const pcpp::Packet& parsedPacket)
+inline void ParseIPv4Layer(const pcpp::Packet& parsedPacket)
 {
     //Parsing IPv4
 
-    auto * ipLayer = parsedPacket.getLayerOfType<pcpp::IPv4Layer>();
+    const auto * ipLayer = parsedPacket.getLayerOfType<pcpp::IPv4Layer>();
 
     if (ipLayer == nullptr)
     {
@@ -112,7 +113,7 @@ void ParseIPv4Layer(const pcpp::Packet& parsedPacket)
              <<"TTL: "<<std::dec << (int)ipLayer->getIPv4Header()->timeToLive<<std::endl;
 
 }
-void ParseTCPLayer(const pcpp::Packet& parsedPacket)
+inline void ParseTCPLayer(const pcpp::Packet& parsedPacket)
 {
     auto* tcpLayer = parsedPacket.getLayerOfType<pcpp::TcpLayer>();
 
@@ -134,7 +135,7 @@ void ParseTCPLayer(const pcpp::Packet& parsedPacket)
     std::cout << std::endl;
 
 }
-void ParseHTTPLayer(const pcpp::Packet& parsedPacket){
+inline void ParseHTTPLayer(const pcpp::Packet& parsedPacket){
     auto * httpLayer = parsedPacket.getLayerOfType<pcpp::HttpRequestLayer>();
 
     if(httpLayer == nullptr)
@@ -155,7 +156,7 @@ void ParseHTTPLayer(const pcpp::Packet& parsedPacket){
     // print the full URL of this request
     std::cout << "HTTP full URL: " << httpLayer->getUrl() << std::endl;
 }
-void ParsePacket(const std::string& FileName)
+inline void ParsePacket(const std::string& FileName)
 {
     //Created a smart pointer
     std::unique_ptr<pcpp::IFileReaderDevice> reader(pcpp::IFileReaderDevice::getReader(FileName));
@@ -189,3 +190,4 @@ void ParsePacket(const std::string& FileName)
     ParseTCPLayer(parsedPacket);
     ParseHTTPLayer(parsedPacket);
 }
+#endif

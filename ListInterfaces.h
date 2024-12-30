@@ -1,68 +1,81 @@
+#ifndef LISTINTERFACES_H
+#define LISTINTERFACES_H
 #include <iostream>
 #include <unordered_map>
 #include "PcapLiveDeviceList.h"
 
-std::unordered_map<int,pcpp::PcapLiveDevice*> listInterface() {
+inline std::unordered_map<int, pcpp::PcapLiveDevice*> listInterface(bool printInterface = true) {
     auto interfaces = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDevicesList();
     int interfaceCount = 1;
+    std::unordered_map<int, pcpp::PcapLiveDevice*> interface_map;
 
-    std::cout << "Interfaces found:" << std::endl;
-    std::unordered_map<int,pcpp::PcapLiveDevice*> interface_map;
+    if (printInterface) {
+        std::cout << "Interfaces found:" << std::endl;
+    }
 
     for (auto interface : interfaces) {
-        std::cout << "----------------------------------------" << std::endl;
-        interface_map[interfaceCount]=interface;
-        std::cout << interfaceCount++ << ". Interface Name: " << interface->getName() << std::endl;
+        interface_map[interfaceCount] = interface;
 
-        // Description
-        if (!interface->getDesc().empty()) {
-            std::cout << "   Description       : " << interface->getDesc() << std::endl;
-        } else {
-            std::cout << "   Description       : (None)" << std::endl;
-        }
+        if (printInterface) {
+            std::cout << "----------------------------------------" << std::endl;
+            std::cout << interfaceCount << ". Interface Name: " << interface->getName() << std::endl;
 
-        // Default Gateway
-        auto defaultGateway = interface->getDefaultGateway();
-        if (defaultGateway!=pcpp::IPv4Address::Zero) {
-            std::cout << "   Default Gateway   : " << interface->getDefaultGateway().toString() << std::endl;
-        } else {
-            std::cout << "   Default Gateway   : (None)" << std::endl;
-        }
-
-        // MAC Address
-        auto macAddress=interface->getMacAddress();
-        if (macAddress != pcpp::MacAddress::Zero) {
-            std::cout << "   MAC Address       : " << interface->getMacAddress().toString() << std::endl;
-        } else {
-            std::cout << "   MAC Address       : (None)" << std::endl;
-        }
-
-        // IPv4 Addresses
-        auto ipv4Addresses = interface->getIPAddresses();
-        if (!ipv4Addresses.empty()) {
-            std::cout << "   IPv4 Addresses    : ";
-            for (const auto& address : ipv4Addresses) {
-                if (address.isIPv4()) {
-                    std::cout << address.toString() << " ";
-                }
+            // Description
+            if (!interface->getDesc().empty()) {
+                std::cout << "   Description       : " << interface->getDesc() << std::endl;
+            } else {
+                std::cout << "   Description       : (None)" << std::endl;
             }
-            std::cout << std::endl;
-        } else {
-            std::cout << "   IPv4 Addresses    : None" << std::endl;
+
+            // Default Gateway
+            auto defaultGateway = interface->getDefaultGateway();
+            if (defaultGateway != pcpp::IPv4Address::Zero) {
+                std::cout << "   Default Gateway   : " << defaultGateway.toString() << std::endl;
+            } else {
+                std::cout << "   Default Gateway   : (None)" << std::endl;
+            }
+
+            // MAC Address
+            auto macAddress = interface->getMacAddress();
+            if (macAddress != pcpp::MacAddress::Zero) {
+                std::cout << "   MAC Address       : " << macAddress.toString() << std::endl;
+            } else {
+                std::cout << "   MAC Address       : (None)" << std::endl;
+            }
+
+            // IPv4 Addresses
+            auto ipv4Addresses = interface->getIPAddresses();
+            if (!ipv4Addresses.empty()) {
+                std::cout << "   IPv4 Addresses    : ";
+                for (const auto& address : ipv4Addresses) {
+                    if (address.isIPv4()) {
+                        std::cout << address.toString() << " ";
+                    }
+                }
+                std::cout << std::endl;
+            } else {
+                std::cout << "   IPv4 Addresses    : None" << std::endl;
+            }
+
+            // Loopback Check
+            std::cout << "   Loopback Device   : " << (interface->getLoopback() ? "Yes" : "No") << std::endl;
+
+            // MTU
+            if (interface->getMtu() > 0) {
+                std::cout << "   MTU               : " << interface->getMtu() << std::endl;
+            } else {
+                std::cout << "   MTU               : (Not Available)" << std::endl;
+            }
         }
 
-        // Loopback Check
-        std::cout << "   Loopback Device   : " << (interface->getLoopback() ? "Yes" : "No") << std::endl;
-
-        // MTU
-        if (interface->getMtu() > 0) {
-            std::cout << "   MTU               : " << interface->getMtu() << std::endl;
-        } else {
-            std::cout << "   MTU               : (Not Available)" << std::endl;
-        }
+        interfaceCount++;
     }
-    std::cout << "----------------------------------------" << std::endl;
-    std::cout << "Total Interfaces Found: " << interfaceCount-1 << std::endl;
+
+    if (printInterface) {
+        std::cout << "----------------------------------------" << std::endl;
+        std::cout << "Total Interfaces Found: " << interfaceCount - 1 << std::endl;
+    }
 
     return interface_map;
 }
+#endif

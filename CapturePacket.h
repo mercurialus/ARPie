@@ -1,3 +1,5 @@
+#ifndef CAPTUREPACKET_H
+#define CAPTUREPACKET_H
 #include <iostream>
 #include <algorithm>
 #include "cstdlib"
@@ -18,7 +20,7 @@ struct PacketStats {
         ethPacketCount = ipv4PacketCount = ipv6PacketCount = tcpPacketCount = udpPacketCount = dnsPacketCount = httpPacketCount = sslPacketCount = 0;
     }
 
-    void ConsumePacket(pcpp::Packet &packet) {
+    void ConsumePacket(const pcpp::Packet &packet) {
         if (packet.isPacketOfType(pcpp::Ethernet))
             ethPacketCount++;
         if (packet.isPacketOfType(pcpp::IPv4))
@@ -63,7 +65,7 @@ static bool onPacketArrivesBlockingMode(pcpp::RawPacket *packet, pcpp::PcapLiveD
     return false;
 }
 
-void CapturePackets(pcpp::PcapLiveDevice* interface) {
+inline void CapturePackets(pcpp::PcapLiveDevice* interface) {
 
     if(interface == nullptr)
     {
@@ -175,3 +177,4 @@ void CapturePackets(pcpp::PcapLiveDevice* interface) {
 
 
 }
+#endif
