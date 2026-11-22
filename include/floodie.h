@@ -8,6 +8,7 @@
 #include "UdpLayer.h"
 #include "PayloadLayer.h"
 #include "IcmpLayer.h"
+#include "ArpLayer.h"
 #include <iostream>
 #include <string>
 #include <random>
@@ -38,12 +39,22 @@ inline void simulateFlood(const std::function<pcpp::Packet()> &packetBuilder, pc
         }
     };
 
+    if (threadCount <= 0 || packetCount <= 0)
+    {
+        std::cerr << "Nothing to send: packetCount and threadCount must be positive" << std::endl;
+        return;
+    }
+
     std::vector<std::thread> threads;
-    int packetsPerThread = packetCount / threadCount;
+    const int basePerThread = packetCount / threadCount;
+    const int remainder = packetCount % threadCount;
 
     for (int i = 0; i < threadCount; ++i)
     {
-        threads.emplace_back(floodTask, packetsPerThread);
+        // Spread the remainder over the first few threads so the total
+        // sent is exactly packetCount, not packetCount rounded down.
+        const int count = basePerThread + (i < remainder ? 1 : 0);
+        threads.emplace_back(floodTask, count);
     }
 
     for (auto &thread : threads)

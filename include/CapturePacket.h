@@ -2,9 +2,10 @@
 #define CAPTUREPACKET_H
 #include <iostream>
 #include <algorithm>
-#include "cstdlib"
+#include <cstdlib>
 #include "PcapLiveDeviceList.h"
 #include "SystemUtils.h"
+#include "Packet.h"
 
 struct PacketStats {
     int ethPacketCount = 0;

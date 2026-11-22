@@ -1,6 +1,7 @@
 #ifndef ARPIEFLOODER_H
 #define ARPIEFLOODER_H
 #include "floodie.h"
+#include "ListInterfaces.h"
 
 inline int mainFunctionFlooder()
 {
@@ -31,14 +32,14 @@ inline int mainFunctionFlooder()
     pcpp::PcapLiveDevice* dev = pcpp::PcapLiveDeviceList::getInstance().getPcapLiveDeviceByName(interfaceName);
     if (!dev) {
         std::cerr << "Could not find device: " << interfaceName << std::endl;
-        std::cerr << "If not sure, enter 1 to check interfaces available or enter 0 to exit"<<std::endl;
-        int opt=0;
-        std::cin>>opt;
-        if(opt==0) return 1;
-        else if (opt == 1) {
+        std::cerr << "Enter 1 to list the available interfaces, or anything else to exit." << std::endl;
+        int opt = 0;
+        std::cin >> opt;
+        if (opt == 1) {
             listInterface();
-            return 1;
         }
+        // No valid device was found, so there is nothing more we can do here.
+        return 1;
     }
     if (!dev->open()) {
         std::cerr << "Could not open device: " << interfaceName << std::endl;

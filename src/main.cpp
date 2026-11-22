@@ -1,3 +1,4 @@
+#include <limits>
 #include "ListInterfaces.h"
 #include "CapturePacket.h"
 #include "ARPieFlooder.h"
@@ -43,11 +44,15 @@ int main(int argc, char* argv[])
                 std::cout<<"Please enter the Interface No. for which you want to sniff packets: ";
                 std::cin>>opt;
                 std::cout<<std::endl;
-                const auto userInterface = interfaceList[opt];
-                CapturePackets(userInterface);
+                auto it = interfaceList.find(opt);
+                if (it == interfaceList.end()) {
+                    std::cout << "No interface with number " << opt << ". Returning to menu.\n";
+                    continue;
+                }
+                CapturePackets(it->second);
             } else if (choice == 2) {
                 std::cout << "\nYou selected: Flood attack someone\n";
-
+                mainFunctionFlooder();
             } else if (choice == 3) {
                 std::cout << "\nExiting program. Goodbye!\n";
                 break;
@@ -56,4 +61,5 @@ int main(int argc, char* argv[])
     };
 
     Menu();
+    return 0;
 }

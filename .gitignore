@@ -20,3 +20,7 @@ test.cpp
 *.pcap
 *.pcapng
 *.snoop
+
+# Editor swap files
+*.swp
+*.swo

@@ -5,11 +5,14 @@
 #include <cstdlib>
 #include <fstream>
 #include <memory>
+#include <atomic>
 #include <MacAddress.h>
 #include <IpAddress.h>
 #include <SystemUtils.h>
 #include <PcapLiveDevice.h>
 #include <PcapLiveDeviceList.h>
+#include <PcapFilter.h>
+#include <Packet.h>
 #include <EthLayer.h>
 #include <ArpLayer.h>
 #include <Logger.h>
@@ -74,21 +77,24 @@ pcpp::MacAddress getMacAddress(const pcpp::IPv4Address ipAddr, pcpp::PcapLiveDev
 
     pcpp::ArpFilter arpFilter(pcpp::ARP_REPLY);
 
-    if (dev->setFilter(arpFilter))
+    // setFilter returns true on success; bail out when it fails.
+    if (!dev->setFilter(arpFilter))
     {
         std::cerr << "Unable to set up the ARP filter on the device" << std::endl;
         return pcpp::MacAddress::Zero;
     }
 
-    dev->sendPacket((&arpRequest));
+    // Start capturing before sending the request, otherwise a fast reply
+    // can arrive before the capture is running and be missed.
     pcpp::RawPacketVector capturedPackets;
     dev->startCapture(capturedPackets);
-    pcpp:pcpp::multiPlatformSleep((2));
+    dev->sendPacket(&arpRequest);
+    pcpp::multiPlatformSleep(2);
     dev->stopCapture();
 
     if (capturedPackets.size()<1)
     {
-        std::cerr << "No ARP reply waws captured"<<std::endl<<
+        std::cerr << "No ARP reply was captured"<<std::endl<<
             "Couldn't receive the MAC address for IP "<< ipAddr<<std::endl;
         return pcpp::MacAddress::Zero;
     }
@@ -106,7 +112,6 @@ void ARPie(pcpp::PcapLiveDevice* dev,const pcpp::IPv4Address& gatewayAddr,
             const  pcpp::IPv4Address& victimAddr)
 {
     pcpp::MacAddress gatewayMac;
-
     try
     {
         gatewayMac = getMacAddress(gatewayAddr, dev);
@@ -114,6 +119,10 @@ void ARPie(pcpp::PcapLiveDevice* dev,const pcpp::IPv4Address& gatewayAddr,
     catch (std::exception& e)
     {
         EXIT_WITH_ERROR("Failed to find gateway MAC address: "<<e.what());
+    }
+    if (gatewayMac == pcpp::MacAddress::Zero)
+    {
+        EXIT_WITH_ERROR("Could not resolve the gateway MAC address for " << gatewayAddr);
     }
 
     pcpp::MacAddress victimMac;
@@ -125,9 +134,14 @@ void ARPie(pcpp::PcapLiveDevice* dev,const pcpp::IPv4Address& gatewayAddr,
     {
         EXIT_WITH_ERROR("Failed to find victim MAC address: "<<e.what());
     }
+    if (victimMac == pcpp::MacAddress::Zero)
+    {
+        EXIT_WITH_ERROR("Could not resolve the victim MAC address for " << victimAddr);
+    }
 
-    std::cout << std::endl << "Got the victim's MAC address: "
-              << gatewayMac <<" !"<< std::endl;
+    std::cout << std::endl
+              << "Got the gateway's MAC address: " << gatewayMac << std::endl
+              << "Got the victim's MAC address:  " << victimMac  << std::endl;
 
 
     const pcpp::MacAddress deviceMacAddress = dev->getMacAddress();

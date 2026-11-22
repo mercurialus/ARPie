@@ -102,14 +102,14 @@ inline void ParseIPv4Layer(const pcpp::Packet& parsedPacket)
 
     if (ipLayer == nullptr)
     {
-        std::cerr << "Something went wrong, couldn't find Ethernet Layer"<<std::endl;
+        std::cerr << "Something went wrong, couldn't find IPv4 Layer"<<std::endl;
         return;
     }
 
     std::cout<<std::endl
              << "Source IP address: " << ipLayer->getSrcIPv4Address()<<std::endl
-             << "Destination MAC address: " << ipLayer->getDstIPv4Address()<<std::endl
-             << "IP ID: 0x"<<std::hex<<pcpp::netToHost16(ipLayer->getIPv4Header()->ipDst)<<std::endl
+             << "Destination IP address: " << ipLayer->getDstIPv4Address()<<std::endl
+             << "IP ID: 0x"<<std::hex<<pcpp::netToHost16(ipLayer->getIPv4Header()->ipId)<<std::endl
              <<"TTL: "<<std::dec << (int)ipLayer->getIPv4Header()->timeToLive<<std::endl;
 
 }
@@ -124,10 +124,10 @@ inline void ParseTCPLayer(const pcpp::Packet& parsedPacket)
     }
 
     std::cout<<std::endl
-    <<"Source TCP Port" << tcpLayer->getSrcPort()<<std::endl
-    <<"Destination TCP Port" << tcpLayer->getDstPort()<<std::endl
-    <<"Window Size" << pcpp::netToHost16(tcpLayer->getTcpHeader()->windowSize)<<std::endl
-    <<"TCP Flags" << printTCPFlags(tcpLayer)<<std::endl<< "TCP options: ";
+    <<"Source TCP Port: " << tcpLayer->getSrcPort()<<std::endl
+    <<"Destination TCP Port: " << tcpLayer->getDstPort()<<std::endl
+    <<"Window Size: " << pcpp::netToHost16(tcpLayer->getTcpHeader()->windowSize)<<std::endl
+    <<"TCP Flags: " << printTCPFlags(tcpLayer)<<std::endl<< "TCP options: ";
     for (pcpp::TcpOption tcpOption = tcpLayer->getFirstTcpOption(); tcpOption.isNotNull(); tcpOption = tcpLayer->getNextTcpOption(tcpOption))
     {
         std::cout << printTcpOptionType(tcpOption.getTcpOptionType()) << " ";
